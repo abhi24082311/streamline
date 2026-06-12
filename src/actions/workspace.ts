@@ -14,14 +14,14 @@ export const verifyAccessToWorkspace = async (workspaceId:string)=>{
                 OR: [
                     {
                         User: {
-                            clerkid: user.id,
+                            clerkId: user.id,
                         },
                     },
                     {
                         members: {
                             every:{
                                 User:{
-                                    clerkid: user.id,
+                                    clerkId: user.id,
                                 }
                             }
                         }
@@ -41,11 +41,11 @@ export const verifyAccessToWorkspace = async (workspaceId:string)=>{
     }
 }
 
-export const getWorkspaceFolders = async (workspaceId:string)=>{
+export const getWorkspaceFolders = async (workSpaceId:string)=>{
   try{
     const isFolders = await client.folder.findMany({
         where: {
-            workspaceId
+            workSpaceId
         },
         include: {
             _count: {
@@ -122,7 +122,7 @@ export const getWorkSpaces=async () => {
       select: {
         subscription: {
           select: {
-            plan: true;
+            plan: true,
           },
         },
         workSpace: {
