@@ -3,65 +3,65 @@
 import { client } from "@/lib/prisma"
 import { currentUser } from "@clerk/nextjs/server"
 
-export const verifyAccessToWorkspace = async (workspaceId:string)=>{
-    try{
-        const user=await currentUser()
-        if(!user) return {status:403}
+export const verifyAccessToWorkspace = async (workspaceId: string) => {
+  try {
+    const user = await currentUser()
+    if (!user) return { status: 403 }
 
-        const isUserInWorkspace=await client.workSpace.findUnique({
-            where:{
-                id:workspaceId,
-                OR: [
-                    {
-                        User: {
-                            clerkId: user.id,
-                        },
-                    },
-                    {
-                        members: {
-                            every:{
-                                User:{
-                                    clerkId: user.id,
-                                }
-                            }
-                        }
-                    }
-                ]
+    const isUserInWorkspace = await client.workSpace.findUnique({
+      where: {
+        id: workspaceId,
+        OR: [
+          {
+            User: {
+              clerkId: user.id,
+            },
+          },
+          {
+            members: {
+              every: {
+                User: {
+                  clerkId: user.id,
+                }
+              }
             }
-        })
-        
-        return{
-            status: 200,data:{workspace: isUserInWorkspace},
-        }
-    } catch(error) {
-        return{
-           status: 403,
-           data:{workspace: null},
-        }
+          }
+        ]
+      }
+    })
+
+    return {
+      status: 200, data: { workspace: isUserInWorkspace },
     }
+  } catch (error) {
+    return {
+      status: 403,
+      data: { workspace: null },
+    }
+  }
 }
 
-export const getWorkspaceFolders = async (workSpaceId:string)=>{
-  try{
+export const getWorkspaceFolders = async (workSpaceId: string) => {
+  try {
     const isFolders = await client.folder.findMany({
-        where: {
-            workSpaceId
-        },
-        include: {
-            _count: {
-                select: {
-                    videos: true,
-                }
-            }
+      where: {
+        workSpaceId
+      },
+      include: {
+        _count: {
+          select: {
+            videos: true,
+          }
         }
+      }
     })
-    if(isFolders && isFolders.length > 0){
-        return { status:200, data: isFolders}
+    if (isFolders && isFolders.length > 0) {
+      return { status: 200, data: isFolders }
     }
-    return {status: 404, data: []}
+    return { status: 404, data: [] }
   }
-  catch(error){
-    return {status: 403, data:[]}
+  catch (error) {
+    return { status: 403, data: [] }
   }
 }
 
@@ -89,11 +89,11 @@ export const getAllUserVideos = async (workSpaceId: string) => {
           },
         },
         User: {
-            select : {
-                firstName: true,
-                lastName: true,
-                image: true,
-            }
+          select: {
+            firstName: true,
+            lastName: true,
+            image: true,
+          }
         }
       },
       orderBy: {
@@ -101,20 +101,20 @@ export const getAllUserVideos = async (workSpaceId: string) => {
       }
     })
 
-    if(videos && videos.length>0){
-        return {status:200, data:videos}
+    if (videos && videos.length > 0) {
+      return { status: 200, data: videos }
     }
-    return {status:404}
+    return { status: 404 }
   } catch (error) {
-    return {status:400}
+    return { status: 400 }
   }
 }
 
 
-export const getWorkSpaces=async () => {
-  try{
-    const user=await currentUser()
-    if(!user) return {status:404}
+export const getWorkSpaces = async () => {
+  try {
+    const user = await currentUser()
+    if (!user) return { status: 404 }
     const workspaces = await client.user.findUnique({
       where: {
         clerkId: user.id,
@@ -143,15 +143,16 @@ export const getWorkSpaces=async () => {
           },
         },
       }
-      
+
     })
-    
-    if(workspaces){
-      return {status:200, data:workspaces}
+
+    if (workspaces) {
+      return { status: 200, data: workspaces }
     }
+    return { status: 404 }
   }
-  catch(error){
-    return {status:400}
+  catch (error) {
+    return { status: 400 }
   }
 }
 
@@ -180,3 +181,13 @@ export const getNotifications = async () => {
     return { status: 400, data: [] }
   }
 }
+
+// export const inviteToWorkspace = async (
+//   workspaceId: string,
+//   recieverId: string,
+//   email: string
+// ) => {
+//   try {
+//     const user = await currentUser()
+//     if (!user) return { status: 403, data: "Unauthorized" }
+

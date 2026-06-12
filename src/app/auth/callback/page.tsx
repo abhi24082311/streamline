@@ -10,9 +10,9 @@ const AuthCallbackPage = async (props: Props) => {
   if (auth.status === 200 || auth.status === 201) {
     return redirect(`/dashboard/${auth.user?.workSpace[0].id}`)
   }
-  if (auth.status === 400 || auth.status === 500 || auth.status === 404) {
-    return redirect('/auth/sign-in')
-  }
+
+  // If authentication failed, expired, or returned any error status, redirect to sign-in
+  return redirect('/auth/sign-in')
 }
 
 export default AuthCallbackPage
