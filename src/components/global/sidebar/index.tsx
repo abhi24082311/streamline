@@ -5,17 +5,14 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Separator } from '@/components/ui/separator'
 import React from 'react'
 import { useQueryData } from '@/hooks/userQueryData'
-import { getNotifications, getWorkSpaces } from '@/actions/workspace'
 import { NotificationProps, WorkspaceProps } from '@/types/index.type'
 import Modal from '../modal'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle, Lock, Globe } from 'lucide-react'
 import Search from '../search-workspace'
 import { MENU_ITEMS } from '@/constants'
 import SidebarItem from './sidebar-item'
 import WorkspacePlaceholder from './workspace-placeholder'
-import GlobalCard from '../global-card'
-import { Button } from '@/components/ui/button'
-import Loader from '../loader'
+import CreateWorkspaceButton from '@/components/global/create-workspace'
 
 type Props = {
   activeWorkspaceId: string
@@ -25,8 +22,10 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
   const router = useRouter()
   const pathName = usePathname()
 
-  const { data: notifications } = useQueryData(['user-notifications'], getNotifications)
-  const { data: workspaces } = useQueryData(['user-workspaces'], getWorkSpaces)
+  // These queries are always pre-seeded by the server layout via HydrationBoundary.
+  // Passing a no-op queryFn prevents any client-side server action calls.
+  const { data: notifications } = useQueryData(['user-notifications'], () => null as any)
+  const { data: workspaces } = useQueryData(['user-workspaces'], () => null as any)
   
   const notificationData = notifications as NotificationProps | undefined
   const count = notificationData?.data
@@ -124,65 +123,60 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
       <p className="w-full text-[#909090] font-bold mt-4">Workspaces</p>
       <nav className="w-full">
         <ul className="h-[150px] overflow-auto overflow-x-hidden fade-layer">
-          {workspacesData?.data?.workSpace && workspacesData.data.workSpace.length > 0 && workspacesData.data.workSpace.map((item) => (
-            
-            item.type !== 'PERSONAL' && (
-            <SidebarItem
-              href={`/dashboard/${item.id}`}
-              selected={pathName === `/dashboard/${item.id}`}
-              title={item.name}
-              key={item.id}
-              icon={
-                <WorkspacePlaceholder>
-                  {item.name.charAt(0).toUpperCase()}
-                </WorkspacePlaceholder>
-              }
-            />  
-            
-          )
-          ))}
-          {workspacesData?.data?.members && workspacesData.data.members.length > 0 && workspacesData.data.members.map((item) =>
-            item.WorkSpace && (
+          {workspacesData?.data?.workSpace &&
+            workspacesData.data.workSpace.length > 0 &&
+            workspacesData.data.workSpace.map((item) => (
               <SidebarItem
-                href={`/dashboard/${item.WorkSpace.id}`}
-                selected={pathName === `/dashboard/${item.WorkSpace.id}`}
-                title={item.WorkSpace.name}
-                key={item.WorkSpace.id}
+                key={item.id}
+                href={`/dashboard/${item.id}`}
+                selected={pathName === `/dashboard/${item.id}`}
+                title={item.name}
                 icon={
                   <WorkspacePlaceholder>
-                    {item.WorkSpace.name.charAt(0).toUpperCase()}
+                    {item.name.charAt(0).toUpperCase()}
                   </WorkspacePlaceholder>
                 }
-              />
+                notifications={0}
+              >
+                {item.type === 'PERSONAL' ? (
+                  <Lock size={12} className="text-neutral-500 ml-auto flex-shrink-0" />
+                ) : (
+                  <Globe size={12} className="text-indigo-400 ml-auto flex-shrink-0" />
+                )}
+              </SidebarItem>
+            ))
+          }
+          {workspacesData?.data?.members &&
+            workspacesData.data.members.length > 0 &&
+            workspacesData.data.members.map(
+              (item) =>
+                item.WorkSpace && (
+                  <SidebarItem
+                    key={item.WorkSpace.id}
+                    href={`/dashboard/${item.WorkSpace.id}`}
+                    selected={pathName === `/dashboard/${item.WorkSpace.id}`}
+                    title={item.WorkSpace.name}
+                    icon={
+                      <WorkspacePlaceholder>
+                        {item.WorkSpace.name.charAt(0).toUpperCase()}
+                      </WorkspacePlaceholder>
+                    }
+                    notifications={0}
+                  />
+                )
             )
-          )}
-          {workspacesData?.data?.workSpace?.length === 1 &&
-            workspacesData?.data?.members?.length === 0 && (
-              <div className='w-full h-full flex justify-center items-center'>
-                <p className='text-[#9D9D9D] font-medium text-sm'>
-                  {workspacesData?.data?.subscription?.[0]?.plan === 'FREE' ? 'Upgrade To Premium' : 'No Workspaces'}
-                </p>
+          }
+          {!workspacesData?.data?.workSpace?.length &&
+            !workspacesData?.data?.members?.length && (
+              <div className="w-full h-full flex justify-center items-center">
+                <p className="text-[#9D9D9D] font-medium text-sm">No workspaces</p>
               </div>
             )
           }
         </ul>
       </nav>
-      <Separator className='w-4/5'/>
-      {workspacesData?.data?.subscription?.[0]?.plan === 'FREE' && (
-        <GlobalCard
-          title="Upgrade To Premium"
-          description="Upgrade To Premium"
-        >
-          <Button className='text-sm w-full mt-2'>
-            <Loader>Upgrade</Loader>
-          </Button>
-        </GlobalCard>
-      )} 
-      
-      
-    
-      
-    </div>
+      <CreateWorkspaceButton />
+</div>
   )
 }
 

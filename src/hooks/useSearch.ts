@@ -34,13 +34,16 @@ export const useSearch = (key: string, type: 'WORKSPACE') => {
     const { refetch, isFetching } = useQueryData(
         [key, debounce],
         async ({ queryKey }: any) => {
-            if (type == "WORKSPACE") {
+            if (type === 'WORKSPACE') {
                 const users = await searchUsers(queryKey[1] as string)
-                if (users.status == 200 && users.data) {
-                    setOnUsers(users.data)
+                if (users.status === 200 && users.data) {
+                    setOnUsers(users.data as any)
+                } else {
+                    setOnUsers(undefined)
                 }
+                return users
             }
-
+            return { status: 200, data: [] }
         },
         false
     )

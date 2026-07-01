@@ -7,7 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Loader from "@/components/global/loader"
 import { User } from "lucide-react"
-// import { inviteToWorkspace } from "@/actions/workspace"
+import { inviteToWorkspace } from "@/actions/workspace"
+import { toast } from "sonner"
 
 type Props = {
     workspaceId: string
@@ -22,7 +23,28 @@ const Search = ({ workspaceId }: Props) => {
     const { mutate, isPending } = useMutationData(
         ['invite-member'],
         (data: { recieverId: string; email: string }) =>
-            inviteToWorkspace(workspaceId, data.recieverId, data.email)
+            inviteToWorkspace(workspaceId, data.recieverId, data.email),
+        (data) => {
+            if (data?.status === 200 && data?.inviteLink) {
+                if (typeof window !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(data.inviteLink)
+                        .then(() => {
+                            toast.success("Invite link copied to clipboard!")
+                        })
+                        .catch((err) => {
+                            console.warn("Clipboard copy failed:", err)
+                            toast.success(`Invite created! Copy: ${data.inviteLink}`, {
+                                duration: 10000,
+                            })
+                        })
+                } else {
+                    toast.success(`Invite created! Copy: ${data.inviteLink}`, {
+                        duration: 10000,
+                    })
+                }
+            }
+        },
+        'user-notifications'
     )
 
     return (
