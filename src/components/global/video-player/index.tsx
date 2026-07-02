@@ -12,6 +12,12 @@ interface Props {
 const VideoPlayer = ({ videoId, source, processing }: Props) => {
   const hasTracked = useRef(false)
 
+  // Build the full video URL: if source is already a full URL use it as-is,
+  // otherwise prepend the CloudFront stream base URL.
+  const videoUrl = source.startsWith('http')
+    ? source
+    : `${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${source}`
+
   useEffect(() => {
     if (!hasTracked.current && !processing) {
       hasTracked.current = true
@@ -35,7 +41,7 @@ const VideoPlayer = ({ videoId, source, processing }: Props) => {
         controls
         autoPlay={false}
         className="w-full h-full object-contain"
-        src={source}
+        src={videoUrl}
         preload="metadata"
       >
         Your browser does not support the video element.

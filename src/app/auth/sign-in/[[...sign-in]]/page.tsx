@@ -1,10 +1,12 @@
-import React from 'react'
 import { SignIn } from '@clerk/nextjs'
 
-type Props = {}
+type Props = {
+  searchParams: Promise<{ redirect_url?: string }>
+}
 
-const SignInPage = (props: Props) => {
-  return <SignIn />
+const SignInPage = async ({ searchParams }: Props) => {
+  const { redirect_url } = await searchParams
+  return <SignIn fallbackRedirectUrl={redirect_url || '/dashboard'} />
 }
 
 export default SignInPage

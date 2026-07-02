@@ -1,16 +1,16 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-const allowedOrigins = ['http://localhost:5173','http://localhost:3000']
-const corsOptions={
-  
-  'Access-Control-Allow-Methods':'GET,POST,PUT,DELETE',
-  'Access-Control-Allow-Headers':'Content-Type,Authorization'
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000']
+const corsOptions = {
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
 }
 
-const isProtectedRoutes = createRouteMatcher(['/dashboard(.*)', 
-    '/api/payment/', 
-    '/payment(.*)',
+const isProtectedRoutes = createRouteMatcher([
+  '/dashboard(.*)',
+  '/api/payment/',
+  '/payment(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
@@ -45,14 +45,9 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   return response
 })
 
-
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for Clerk's auto-proxy path
-    '/__clerk/(.*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-};
+}

@@ -123,6 +123,19 @@ export const deleteComment = async (commentId: string) => {
   }
 }
 
+export const deleteVideo = async (videoId: string) => {
+  try {
+    const user = await getAuthUser()
+    if (!user) return { status: 403, data: 'Unauthorized' }
+
+    await client.video.delete({ where: { id: videoId } })
+    return { status: 200, data: 'Video deleted' }
+  } catch (error) {
+    console.error(error)
+    return { status: 500, data: 'Something went wrong' }
+  }
+}
+
 export const markNotificationRead = async (notificationId: string) => {
   try {
     await client.notification.update({

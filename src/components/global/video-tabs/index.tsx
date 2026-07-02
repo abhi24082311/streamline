@@ -60,19 +60,18 @@ const VideoTabs = ({ videoId, initialComments, summary }: Props) => {
             </p>
           </div>
 
-          {/* Coming soon card */}
           <div className="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 p-5">
             <div className="flex items-center gap-2 mb-3">
               <Zap size={16} className="text-indigo-400" />
               <span className="text-sm font-semibold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
-                Opal Ai ✦
+                Streamline Ai ✦
               </span>
             </div>
             <div className="flex flex-col gap-y-3">
               {[
-                { label: 'Summary', desc: 'Generate a description for your video using AI.' },
-                { label: 'Transcript', desc: 'Auto-generate a full transcript for your video.' },
-                { label: 'AI Agent', desc: 'Viewers can ask questions on your video and our AI agent will respond.' },
+                { label: 'Summary', desc: 'AI-generated title and description — saved automatically after recording.' },
+                { label: 'Transcript', desc: 'Full audio transcript via Groq Whisper — available in the Transcript tab.' },
+                { label: 'AI Agent', desc: 'Coming soon — viewers will be able to ask questions about your video.' },
               ].map((item) => (
                 <div key={item.label} className="flex gap-3 items-start p-3 rounded-lg bg-white/5 border border-white/5">
                   <div className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
@@ -85,13 +84,10 @@ const VideoTabs = ({ videoId, initialComments, summary }: Props) => {
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex gap-2">
-              <button className="flex-1 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-600/90 text-white text-xs font-semibold transition-colors">
-                Try now
-              </button>
-              <button className="flex-1 py-2 rounded-lg border border-[#2a2a2a] text-neutral-300 text-xs font-semibold hover:bg-[#2a2a2a] transition-colors">
-                Pay Now
-              </button>
+            {/* All features run automatically — no plan required */}
+            <div className="mt-4 flex items-center gap-2 text-xs text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              All AI features are active for your account
             </div>
           </div>
         </div>
@@ -103,8 +99,8 @@ const VideoTabs = ({ videoId, initialComments, summary }: Props) => {
           <h3 className="text-base font-semibold text-white">Transcript</h3>
           {summary ? (
             <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
-              <p className="text-xs font-semibold text-indigo-400 mb-2 uppercase tracking-wider">AI Summary</p>
-              <p className="text-sm text-neutral-300 leading-relaxed">{summary}</p>
+              <p className="text-xs font-semibold text-indigo-400 mb-2 uppercase tracking-wider">Audio Transcript</p>
+              <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">{summary}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -113,7 +109,7 @@ const VideoTabs = ({ videoId, initialComments, summary }: Props) => {
               </div>
               <p className="text-neutral-500 text-sm font-medium">No transcript yet</p>
               <p className="text-neutral-700 text-xs mt-1">
-                Enable AI Tools to generate a full transcript
+                Transcript is generated automatically after recording
               </p>
             </div>
           )}

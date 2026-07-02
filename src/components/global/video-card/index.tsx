@@ -8,11 +8,25 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Play, MoreVertical, ArrowRightLeft, Film } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Play, MoreVertical, ArrowRightLeft, Trash2, Film } from 'lucide-react'
 import { getCloudinaryThumbnail } from '@/lib/cloudinary'
 import MoveVideoModal from '@/components/global/move-video-modal'
+import { useMutationData } from '@/hooks/useMutationData'
+import { deleteVideo } from '@/actions/video'
+import Loader from '@/components/global/loader'
 
 type Props = {
   id: string
@@ -42,11 +56,19 @@ const VideoCard = ({
   Folder,
 }: Props) => {
   const [moveOpen, setMoveOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
   const thumbnail = getCloudinaryThumbnail(source)
+
+  const { mutate: remove, isPending: isDeleting } = useMutationData(
+    ['delete-video'],
+    () => deleteVideo(id),
+    () => {},
+    'user-videos'
+  )
 
   return (
     <>
-      <div className="group relative flex flex-col bg-[#1D1D1D] hover:bg-[#222] border border-[#2a2a2a] rounded-xl overflow-hidden transition-all duration-200 hover:border-[#3a3a3a] hover:shadow-lg hover:shadow-black/30">
+      <div className={`group relative flex flex-col bg-[#1D1D1D] hover:bg-[#222] border border-[#2a2a2a] rounded-xl overflow-hidden transition-all duration-200 hover:border-[#3a3a3a] hover:shadow-lg hover:shadow-black/30 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
         {/* Thumbnail */}
         <Link href={`/dashboard/${workspaceId}/video/${id}`} className="block relative w-full aspect-video bg-[#111] overflow-hidden">
           {processing ? (
@@ -115,6 +137,18 @@ const VideoCard = ({
                   <ArrowRightLeft size={13} className="text-indigo-400" />
                   Move to Workspace
                 </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-[#2a2a2a]" />
+                <DropdownMenuItem
+                  onClick={() => setDeleteOpen(true)}
+                  className="flex items-center gap-2 cursor-pointer text-red-400 hover:bg-[#2a2a2a] focus:bg-[#2a2a2a] hover:text-red-400 focus:text-red-400"
+                >
+                  <Loader state={isDeleting} color="#f87171">
+                    <>
+                      <Trash2 size={13} />
+                      Delete Video
+                    </>
+                  </Loader>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -161,8 +195,32 @@ const VideoCard = ({
         videoId={id}
         currentWorkspaceId={workspaceId}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="bg-[#1a1a1a] border-[#2a2a2a] text-neutral-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-neutral-100">Delete Video</AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-400">
+              Are you sure you want to delete &quot;{title ?? 'Untitled Video'}&quot;? This action cannot be undone and all associated comments will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-[#2a2a2a] border-[#333] text-neutral-300 hover:bg-[#333] hover:text-neutral-100">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => remove({})}
+              className="bg-red-600 text-white hover:bg-red-700 border-0"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }
 
 export default VideoCard
+
