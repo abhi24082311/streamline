@@ -483,8 +483,8 @@ export const moveVideoToWorkspace = async (
     })
     if (!dbUser) return { status: 404, data: 'User not found' }
 
-    const ownedIds = dbUser.workSpace.map((w) => w.id)
-    const memberIds = dbUser.members.map((m) => m.workSpaceId).filter(Boolean) as string[]
+    const ownedIds = dbUser.workSpace.map((w: { id: string }) => w.id)
+    const memberIds = dbUser.members.map((m: { workSpaceId: string | null }) => m.workSpaceId).filter(Boolean) as string[]
     const accessibleIds = [...ownedIds, ...memberIds]
 
     if (!accessibleIds.includes(targetWorkspaceId)) {
@@ -532,8 +532,8 @@ export const moveVideoToFolder = async (
       })
       if (!folder) return { status: 404, data: 'Folder not found' }
 
-      const ownedIds = dbUser.workSpace.map((w) => w.id)
-      const memberIds = dbUser.members.map((m) => m.workSpaceId).filter(Boolean) as string[]
+      const ownedIds = dbUser.workSpace.map((w: { id: string }) => w.id)
+      const memberIds = dbUser.members.map((m: { workSpaceId: string | null }) => m.workSpaceId).filter(Boolean) as string[]
       const accessibleIds = [...ownedIds, ...memberIds]
 
       if (folder.workSpaceId && !accessibleIds.includes(folder.workSpaceId)) {
