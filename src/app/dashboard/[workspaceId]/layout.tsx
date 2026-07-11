@@ -32,8 +32,8 @@ const Layout = async ({ params, children }: Props) => {
   // Verify workspace access from the data already in memory
   const user = auth.user
   const hasAccess =
-    user.workSpace.some((w) => w.id === workspaceId) ||
-    user.members?.some((m) => m.WorkSpace?.id === workspaceId)
+    user.workSpace.some((w: any) => w.id === workspaceId) ||
+    user.members?.some((m: any) => m.WorkSpace?.id === workspaceId)
 
   if (!hasAccess) redirect(`/dashboard/${user.workSpace[0].id}`)
 
