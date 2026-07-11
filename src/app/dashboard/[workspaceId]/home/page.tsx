@@ -35,7 +35,7 @@ export default async function HomePage({ params }: Props) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {videos.map((video) => (
+          {videos.map((video: any) => (
             <Link
               key={video.id}
               href={`/dashboard/${video.WorkSpace?.id ?? workspaceId}/video/${video.id}`}
