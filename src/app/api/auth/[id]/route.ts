@@ -53,10 +53,10 @@ export async function GET(
   })
 
   if (createUser) return NextResponse.json({ status: 201, user: createUser })
-  console.log("ERROR")
-    return NextResponse.json({ status: 400})}
-    catch(error){
-      
-      return NextResponse.json({ status: 400})
-    }
+  console.log("ERROR - Could not create user")
+  return NextResponse.json({ status: 400 })
+} catch (error) {
+  console.error('API Error in /api/auth/[id]:', error)
+  return NextResponse.json({ status: 400 })
+}
 }

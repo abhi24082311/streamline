@@ -141,6 +141,7 @@ export const getAllUserVideos = async (workSpaceId: string) => {
         createdAt: true,
         source: true,
         processing: true,
+        thumbnail: true,
         Folder: {
           select: {
             id: true,
@@ -378,7 +379,7 @@ export const createFolder = async (workspaceId: string) => {
     })
 
     if (folder) {
-      return { status: 200, data: folder }
+      return { status: 200, data: "Folder created" }
     }
     return { status: 400, data: "Could not create folder" }
   } catch (error) {
@@ -438,7 +439,7 @@ export const createWorkspace = async (name: string) => {
     })
 
     if (workspace) {
-      return { status: 200, data: workspace }
+      return { status: 200, data: "Workspace created successfully" }
     }
     return { status: 400, data: "Could not create workspace" }
   } catch (error) {
@@ -499,6 +500,53 @@ export const moveVideoToWorkspace = async (
     })
 
     return { status: 200, data: 'Video moved successfully' }
+  } catch (error) {
+    console.error(error)
+    return { status: 500, data: 'Something went wrong' }
+  }
+}
+
+export const moveVideoToFolder = async (
+  videoId: string,
+  targetFolderId: string | null // null means "remove from folder" (back to workspace root)
+) => {
+  try {
+    const user = await getAuthUser()
+    if (!user) return { status: 403, data: 'Unauthorized' }
+
+    const dbUser = await client.user.findUnique({
+      where: { clerkId: user.id },
+      select: {
+        id: true,
+        workSpace: { select: { id: true } },
+        members: { select: { workSpaceId: true } },
+      },
+    })
+    if (!dbUser) return { status: 404, data: 'User not found' }
+
+    // If moving into a folder, verify the folder exists and the user has access to its workspace
+    if (targetFolderId) {
+      const folder = await client.folder.findUnique({
+        where: { id: targetFolderId },
+        select: { workSpaceId: true },
+      })
+      if (!folder) return { status: 404, data: 'Folder not found' }
+
+      const ownedIds = dbUser.workSpace.map((w) => w.id)
+      const memberIds = dbUser.members.map((m) => m.workSpaceId).filter(Boolean) as string[]
+      const accessibleIds = [...ownedIds, ...memberIds]
+
+      if (folder.workSpaceId && !accessibleIds.includes(folder.workSpaceId)) {
+        return { status: 403, data: 'No access to target folder' }
+      }
+    }
+
+    await client.video.update({
+      where: { id: videoId },
+      data: { folderId: targetFolderId },
+    })
+
+    return { status: 200, data: targetFolderId ? 'Video moved to folder' : 'Video removed from folder' }
   } catch (error) {
     console.error(error)
     return { status: 500, data: 'Something went wrong' }

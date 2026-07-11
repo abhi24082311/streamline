@@ -43,6 +43,7 @@ const Videos = ({ workspaceId }: Props) => {
             createdAt={new Date(video.createdAt).toISOString()}
             source={video.source}
             processing={video.processing}
+            thumbnail={video.thumbnail}
             workspaceId={workspaceId}
             workspaceName={video.WorkSpace?.name ?? null}
             User={video.User}

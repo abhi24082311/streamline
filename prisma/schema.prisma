@@ -79,6 +79,7 @@ model Video {
   title       String?    @default("Untilted Video")
   description String?    @default("No Description")
   source      String     @unique
+  thumbnail   String?
   createdAt   DateTime   @default(now())
   Folder      Folder?    @relation(fields: [folderId], references: [id], onDelete: Cascade)
   folderId    String?    @db.Uuid

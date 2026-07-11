@@ -47,6 +47,7 @@ export type VideosProps = {
     createdAt: Date
     source: string
     processing: boolean
+    thumbnail: string | null
     Folder: { id: string; name: string | null } | null
     WorkSpace: { id: string; name: string } | null
     User: { firstName: string | null; lastName: string | null; image: string | null } | null

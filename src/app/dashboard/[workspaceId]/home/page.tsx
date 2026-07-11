@@ -48,6 +48,18 @@ export default async function HomePage({ params }: Props) {
                     <Film size={24} className="animate-pulse" />
                     <span className="text-xs">Processing…</span>
                   </div>
+                ) : video.thumbnail ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={
+                        video.thumbnail.startsWith('http')
+                          ? video.thumbnail
+                          : `${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${video.thumbnail}`
+                      }
+                      alt={video.title ?? 'Video thumbnail'}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-indigo-900/30 to-violet-900/20">
                     <Film size={32} className="text-indigo-400 opacity-60" />

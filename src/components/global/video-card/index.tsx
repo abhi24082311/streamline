@@ -21,8 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Play, MoreVertical, ArrowRightLeft, Trash2, Film } from 'lucide-react'
-import { getCloudinaryThumbnail } from '@/lib/cloudinary'
+import { Play, MoreVertical, ArrowRightLeft, Trash2, Film, FolderInput } from 'lucide-react'
 import MoveVideoModal from '@/components/global/move-video-modal'
 import { useMutationData } from '@/hooks/useMutationData'
 import { deleteVideo } from '@/actions/video'
@@ -34,6 +33,7 @@ type Props = {
   createdAt: string  // ISO string
   source: string
   processing: boolean
+  thumbnail?: string | null
   workspaceId: string   // current workspace (for routing)
   workspaceName?: string | null   // for the badge
   User: {
@@ -50,14 +50,23 @@ const VideoCard = ({
   createdAt,
   source,
   processing,
+  thumbnail: thumbnailProp,
   workspaceId,
   workspaceName,
   User,
   Folder,
 }: Props) => {
   const [moveOpen, setMoveOpen] = useState(false)
+  const [moveFolderOpen, setMoveFolderOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const thumbnail = getCloudinaryThumbnail(source)
+
+  // Build thumbnail URL: use DB-stored FFmpeg thumbnail via CloudFront,
+  // or null (falls back to gradient placeholder)
+  const thumbnail = thumbnailProp
+    ? (thumbnailProp.startsWith('http')
+        ? thumbnailProp
+        : `${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${thumbnailProp}`)
+    : null
 
   const { mutate: remove, isPending: isDeleting } = useMutationData(
     ['delete-video'],
@@ -131,10 +140,17 @@ const VideoCard = ({
                 className="bg-[#1D1D1D] border-[#2a2a2a] text-neutral-200 min-w-[160px]"
               >
                 <DropdownMenuItem
+                  onClick={() => setMoveFolderOpen(true)}
+                  className="flex items-center gap-2 cursor-pointer hover:bg-[#2a2a2a] focus:bg-[#2a2a2a]"
+                >
+                  <FolderInput size={13} className="text-indigo-400" />
+                  Move to Folder
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => setMoveOpen(true)}
                   className="flex items-center gap-2 cursor-pointer hover:bg-[#2a2a2a] focus:bg-[#2a2a2a]"
                 >
-                  <ArrowRightLeft size={13} className="text-indigo-400" />
+                  <ArrowRightLeft size={13} className="text-violet-400" />
                   Move to Workspace
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-[#2a2a2a]" />
@@ -194,6 +210,18 @@ const VideoCard = ({
         onClose={() => setMoveOpen(false)}
         videoId={id}
         currentWorkspaceId={workspaceId}
+        currentFolderId={Folder?.id}
+        initialTab="workspaces"
+      />
+
+      {/* Move to Folder modal */}
+      <MoveVideoModal
+        open={moveFolderOpen}
+        onClose={() => setMoveFolderOpen(false)}
+        videoId={id}
+        currentWorkspaceId={workspaceId}
+        currentFolderId={Folder?.id}
+        initialTab="folders"
       />
 
       {/* Delete confirmation dialog */}

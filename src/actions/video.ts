@@ -153,24 +153,18 @@ export const getAllNotifications = async () => {
     const user = await getAuthUser()
     if (!user) return { status: 403, data: [] }
 
-    const dbUser = await client.user.findUnique({
+    // Single query via the User relation — avoids a second round-trip
+    const result = await client.user.findUnique({
       where: { clerkId: user.id },
-      select: { id: true },
-    })
-    if (!dbUser) return { status: 404, data: [] }
-
-    const notifications = await client.notification.findMany({
-      where: { userId: dbUser.id },
       select: {
-        id: true,
-        content: true,
-        read: true,
-        userId: true,
+        notification: {
+          select: { id: true, content: true, read: true, userId: true },
+          orderBy: { id: 'desc' },
+        },
       },
-      orderBy: { id: 'desc' },
     })
 
-    return { status: 200, data: notifications }
+    return { status: 200, data: result?.notification ?? [] }
   } catch (error) {
     return { status: 500, data: [] }
   }
@@ -181,29 +175,29 @@ export const getRecentVideos = async () => {
     const user = await getAuthUser()
     if (!user) return { status: 403, data: [] }
 
-    const dbUser = await client.user.findUnique({
+    // Single query — resolve clerkId and fetch videos in one round-trip
+    const result = await client.user.findUnique({
       where: { clerkId: user.id },
-      select: { id: true },
-    })
-    if (!dbUser) return { status: 404, data: [] }
-
-    const videos = await client.video.findMany({
-      where: { userId: dbUser.id },
       select: {
-        id: true,
-        title: true,
-        createdAt: true,
-        source: true,
-        processing: true,
-        views: true,
-        WorkSpace: { select: { id: true, name: true } },
-        User: { select: { firstName: true, lastName: true, image: true } },
+        videos: {
+          select: {
+            id: true,
+            title: true,
+            createdAt: true,
+            source: true,
+            processing: true,
+            thumbnail: true,
+            views: true,
+            WorkSpace: { select: { id: true, name: true } },
+            User: { select: { firstName: true, lastName: true, image: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 12,
+        },
       },
-      orderBy: { createdAt: 'desc' },
-      take: 12,
     })
 
-    return { status: 200, data: videos }
+    return { status: 200, data: result?.videos ?? [] }
   } catch (error) {
     return { status: 500, data: [] }
   }
