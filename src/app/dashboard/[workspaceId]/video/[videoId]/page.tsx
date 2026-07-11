@@ -31,7 +31,7 @@ export default async function VideoPage({ params }: Props) {
 
   const video = res.data
 
-  const initialComments = (video.comments ?? []).map((c) => ({
+  const initialComments = (video.comments ?? []).map((c: typeof video.comments[0]) => ({
     ...c,
     createdAt: c.createdAt.toISOString(),
   }))
