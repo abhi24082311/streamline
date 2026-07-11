@@ -19,7 +19,7 @@ export default async function SettingsPage({ params }: Props) {
   if (res.status !== 200 || !res.data) notFound()
 
   const user = res.data
-  const currentWorkspace = user.workSpace.find((w) => w.id === workspaceId)
+  const currentWorkspace = user.workSpace.find((w: any) => w.id === workspaceId)
 
   return (
     <div className="p-6 max-w-2xl">
