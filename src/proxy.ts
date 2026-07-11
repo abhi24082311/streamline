@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000']
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://streamline-server-key2.onrender.com', 'app://-']
 const corsOptions = {
   'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
   'Access-Control-Allow-Headers': 'Content-Type,Authorization',
